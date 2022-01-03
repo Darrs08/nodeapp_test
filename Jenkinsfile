@@ -22,10 +22,16 @@ pipeline {
         }
       }
     }
-
+    stage('Login Docker') {
+      steps{
+         withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
+           sh "docker login -u darrs08 -p ${dockerHubPwd}"
+         }
+      }
+    }
     stage('Pushing Image') {
       environment {
-               registryCredential = 'dockerhublogin'
+               registryCredential = 'dockerhub'
            }
       steps{
         script {
