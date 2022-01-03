@@ -1,9 +1,8 @@
 pipeline {
 
   environment {
-    dockerimagename = "darrtips4you/nodeapp"
+    dockerimagename = "thetips4you/nodeapp"
     dockerImage = ""
-    DOCKER_TAG = getDockerTag()
   }
 
   agent any
@@ -18,21 +17,25 @@ pipeline {
 
     stage('Build image') {
       steps{
-        sh "docker build . -t ${dockerimagename}:${DOCKER_TAG}"
         script {
           dockerImage = docker.build dockerimagename
         }
       }
     }
-    
+
     stage('Pushing Image') {
+      environment {
+               registryCredential = 'dockerhub'
+           }
       steps{
-           withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-                    sh "docker login -u darrs08 -p ${dockerHubPwd}"
-                    sh "docker push ${dockerimagename}:${DOCKER_TAG}"
-            }
+        script {
+          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
+            dockerImage.push("latest")
+          }
+        }
+      }
     }
-    }
+
     stage('Deploying App to Kubernetes') {
       steps {
         script {
@@ -40,9 +43,7 @@ pipeline {
         }
       }
     }
+
   }
-}
-def getDockerTag(){
-    def tag = sh script: 'git rev-parse HEAD', returnStdout: true
-    return tag
+
 }
