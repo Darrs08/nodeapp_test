@@ -32,7 +32,7 @@ pipeline {
                     sh "docker push ${dockerimagename}:${DOCKER_TAG}"
             }
     }
-
+    }
     stage('Deploying App to Kubernetes') {
       steps {
         script {
