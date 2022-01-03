@@ -18,6 +18,7 @@ pipeline {
 
     stage('Build image') {
       steps{
+        sh "docker build . -t ${dockerimagename}:${DOCKER_TAG}"
         script {
           dockerImage = docker.build dockerimagename
         }
@@ -28,8 +29,7 @@ pipeline {
       steps{
            withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
                     sh "docker login -u darrs08 -p ${dockerHubPwd}"
-                    sh "dockerImage.push("latest")"
-                }
+                    sh "docker push ${dockerimagename}:${DOCKER_TAG}"
             }
     }
 
