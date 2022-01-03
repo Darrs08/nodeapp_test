@@ -3,6 +3,7 @@ pipeline {
   environment {
     dockerimagename = "darrtips4you/nodeapp"
     dockerImage = ""
+    DOCKER_TAG = getDockerTag()
   }
 
   agent any
@@ -22,24 +23,14 @@ pipeline {
         }
       }
     }
-    stage('Login Docker') {
-      steps{
-         withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-           sh "docker login -u darrs08 -p ${dockerHubPwd}"
-         }
-      }
-    }
+    
     stage('Pushing Image') {
-      environment {
-               registryCredential = 'dockerhub'
-           }
       steps{
-        script {
-          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-            dockerImage.push("latest")
-          }
-        }
-      }
+           withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
+                    sh "docker login -u darrs08 -p ${dockerHubPwd}"
+                    sh "docker push darrtips4you/nodeapp:${DOCKER_TAG}"
+                }
+            }
     }
 
     stage('Deploying App to Kubernetes') {
