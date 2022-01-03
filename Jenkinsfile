@@ -28,7 +28,7 @@ pipeline {
       steps{
            withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
                     sh "docker login -u darrs08 -p ${dockerHubPwd}"
-                    sh "docker push darrtips4you/nodeapp:${DOCKER_TAG}"
+                    sh "dockerImage.push("latest")"
                 }
             }
     }
